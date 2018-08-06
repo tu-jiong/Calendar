@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,6 +15,7 @@
         app:calendar_padding="10dp"
         app:current_month_lunar_text_color="#CFCFCF"
         app:current_month_text_color="#333333"
+        app:layout_behavior="com.jm.calendar.CalendarBehavior"
         app:min_year="2004"
         app:other_month_text_color="#e1e1e1"
         app:scheme_text="假"
@@ -30,4 +31,10 @@
         app:year_view_month_text_size="20sp"
         app:year_view_scheme_color="#f17706" />
 
-</LinearLayout>
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#f00"
+        app:layout_behavior="com.jm.calendar.NestedScrollBehavior" />
+
+</android.support.design.widget.CoordinatorLayout>
