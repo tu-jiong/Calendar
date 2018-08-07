@@ -95,8 +95,6 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
                     translation(child, dy);
                     return super.onTouchEvent(parent, child, ev);
                 }
-                //否则按比例平移
-//                translationViewPager();
                 mLastY = y;
                 break;
             case MotionEvent.ACTION_CANCEL:
@@ -109,13 +107,13 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
             case MotionEvent.ACTION_UP:
                 final VelocityTracker velocityTracker = mVelocityTracker;
                 velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                float mYVelocity = velocityTracker.getYVelocity();
+                float velocity = velocityTracker.getYVelocity();
                 if (child.getHeight() == child.getItemHeight()
                         || child.getHeight() == child.getItemHeight() * 6) {
                     break;
                 }
-                if (Math.abs(mYVelocity) >= 800) {
-                    if (mYVelocity < 0) {
+                if (Math.abs(velocity) >= 800) {
+                    if (velocity < 0) {
                         child.shrink();
                     } else {
                         child.expand();
@@ -140,9 +138,9 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
             if (height < minHeight) {
                 height = minHeight;
             }
-            int fullHeight = child.getFullHeight();
-            if (height > fullHeight) {
-                height = fullHeight;
+            int maxHeight = child.getFullHeight() + child.getWeekBarHeight();
+            if (height > maxHeight) {
+                height = maxHeight;
             }
             params.height = height;
             child.setLayoutParams(params);

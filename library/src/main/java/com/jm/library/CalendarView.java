@@ -1016,7 +1016,7 @@ public class CalendarView extends FrameLayout {
             onShowMonthView();
             mMonthPager.setVisibility(VISIBLE);
         }
-        ValueAnimator valueAnimator = ValueAnimator.ofInt(getHeight(), getFullHeight());
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(getHeight(), getFullHeight() + getWeekBarHeight());
         valueAnimator.setDuration(240);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
