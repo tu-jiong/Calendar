@@ -3,7 +3,6 @@ package com.jm.calendar;
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -101,7 +100,6 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
                 mLastY = y;
                 break;
             case MotionEvent.ACTION_CANCEL:
-
             case MotionEvent.ACTION_POINTER_UP:
                 int pointerIndex = getPointerIndex(ev, mActivePointerId);
                 if (mActivePointerId == INVALID_POINTER)
@@ -109,7 +107,6 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
                 mLastY = MotionEventCompat.getY(ev, pointerIndex);
                 break;
             case MotionEvent.ACTION_UP:
-
                 final VelocityTracker velocityTracker = mVelocityTracker;
                 velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                 float mYVelocity = velocityTracker.getYVelocity();
@@ -212,10 +209,7 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
             View child = parent.getChildAt(i);
             if (child instanceof RecyclerView) {
                 RecyclerView recyclerView = (RecyclerView) child;
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                int first = layoutManager.findFirstCompletelyVisibleItemPosition();
-                int last = layoutManager.findLastCompletelyVisibleItemPosition();
-                return (dy > 0 && last == recyclerView.getAdapter().getItemCount() - 1) || (dy < 0 && first == 0);
+                return (dy > 0 && recyclerView.canScrollVertically(-1)) || (dy < 0 && recyclerView.canScrollVertically(1));
             }
         }
         return false;
