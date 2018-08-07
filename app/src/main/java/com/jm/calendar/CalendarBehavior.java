@@ -3,7 +3,8 @@ package com.jm.calendar;
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -40,11 +41,6 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
         mTouchSlop = configuration.getScaledTouchSlop();
         mVelocityTracker = VelocityTracker.obtain();
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
-    }
-
-    @Override
-    public boolean layoutDependsOn(CoordinatorLayout parent, CalendarView child, View dependency) {
-        return dependency instanceof NestedScrollView;
     }
 
     @Override
@@ -91,13 +87,13 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
 
                 //向下滑动，并且contentView已经完全到底部
                 if (dy > 0) {
-                    translationViewPager(child, dy);
+                    translation(child, dy);
                     return super.onTouchEvent(parent, child, ev);
                 }
 
                 //向上滑动，并且contentView已经平移到最大距离，则contentView平移到最大的距离
                 if (dy < 0) {
-                    translationViewPager(child, dy);
+                    translation(child, dy);
                     return super.onTouchEvent(parent, child, ev);
                 }
                 //否则按比例平移
@@ -139,7 +135,7 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
         return super.onTouchEvent(parent, child, ev);
     }
 
-    private void translationViewPager(CalendarView child, float dy) {
+    private void translation(CalendarView child, float dy) {
         ViewGroup.LayoutParams params = child.getLayoutParams();
         if (params != null) {
             int height = (int) (child.getHeight() + dy);
@@ -176,6 +172,15 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
                 break;
             case MotionEvent.ACTION_MOVE:
                 float dy = y - mLastY;
+                int height = child.getHeight();
+                int max = child.getFullHeight();
+                int min = child.getItemHeight() + child.getWeekBarHeight();
+                if ((dy < 0 && height <= min) || (dy > 0 && height >= max)) {
+                    return false;
+                }
+                if (dispatchTouchEvent(parent, dy)) {
+                    return false;
+                }
                  /*
                    如果向上滚动，且ViewPager已经收缩，不拦截事件
                  */
@@ -202,8 +207,17 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<CalendarView> {
         return super.onInterceptTouchEvent(parent, child, ev);
     }
 
-    @Override
-    public boolean onDependentViewChanged(CoordinatorLayout parent, CalendarView child, View dependency) {
-        return true;
+    private boolean dispatchTouchEvent(CoordinatorLayout parent, float dy) {
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            View child = parent.getChildAt(i);
+            if (child instanceof RecyclerView) {
+                RecyclerView recyclerView = (RecyclerView) child;
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                int first = layoutManager.findFirstCompletelyVisibleItemPosition();
+                int last = layoutManager.findLastCompletelyVisibleItemPosition();
+                return (dy > 0 && last == recyclerView.getAdapter().getItemCount() - 1) || (dy < 0 && first == 0);
+            }
+        }
+        return false;
     }
 }

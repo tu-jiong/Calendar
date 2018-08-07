@@ -31,10 +31,10 @@
         app:year_view_month_text_size="20sp"
         app:year_view_scheme_color="#f17706" />
 
-    <android.support.v4.widget.NestedScrollView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#f00"
         app:layout_behavior="com.jm.calendar.NestedScrollBehavior" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -24,7 +24,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1039,7 +1038,6 @@ public class CalendarView extends FrameLayout {
             public void onAnimationUpdate(ValueAnimator animation) {
                 isAnimating = true;
                 int value = (int) animation.getAnimatedValue();
-                Log.e("tujiong", "shrink " + value);
                 ViewGroup.LayoutParams params = getLayoutParams();
                 if (params != null) {
                     params.height = value;
