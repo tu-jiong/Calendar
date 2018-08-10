@@ -7,7 +7,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -23,6 +22,7 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
     private int mTempTopBottomOffset = Integer.MIN_VALUE;
     private int mDownY;
     private int mLastY;
+    private boolean isAniming;
 
     public DefaultBehavior() {
         super();
@@ -121,6 +121,10 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
     }
 
     private void fling(final CoordinatorLayout parent, final CalendarView child, int start, int end) {
+        if (isAniming) {
+            return;
+        }
+        isAniming = true;
         ValueAnimator valueAnimator = ValueAnimator.ofInt(start, end);
         valueAnimator.setDuration(300);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -140,7 +144,7 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-
+                isAniming = false;
             }
 
             @Override
@@ -176,8 +180,6 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
 
         top = monthPager.getTop();
         int positionInMonth = view.getPositionInMonth();
-
-        Log.e("tujiong", "get " + positionInMonth);
 
         int line = (positionInMonth + 7) / 7;
 
