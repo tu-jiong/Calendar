@@ -145,9 +145,7 @@ final class CalendarViewDelegate {
     /**
      * 星期栏的背景、线的背景、年份背景
      */
-    private int mWeekLineBackground,
-            mYearViewBackground,
-            mWeekBackground;
+    private int mWeekBackground, mWeekBarBackground;
 
     /**
      * 星期栏字体大小
@@ -314,8 +312,7 @@ final class CalendarViewDelegate {
         mSelectMode = array.getInt(R.styleable.CalendarView_select_mode, SELECT_MODE_DEFAULT);
 
         mWeekBackground = array.getColor(R.styleable.CalendarView_week_background, Color.WHITE);
-        mWeekLineBackground = array.getColor(R.styleable.CalendarView_week_line_background, Color.TRANSPARENT);
-        mYearViewBackground = array.getColor(R.styleable.CalendarView_year_view_background, Color.WHITE);
+        mWeekBarBackground = array.getColor(R.styleable.CalendarView_week_bar_background, Color.WHITE);
         mWeekTextColor = array.getColor(R.styleable.CalendarView_week_text_color, 0xFF333333);
 
         mCurDayTextColor = array.getColor(R.styleable.CalendarView_current_day_text_color, Color.RED);
@@ -438,14 +435,9 @@ final class CalendarViewDelegate {
         return mWeekBackground;
     }
 
-    int getYearViewBackground() {
-        return mYearViewBackground;
+    int getWeekBarBackground() {
+        return mWeekBarBackground;
     }
-
-    int getWeekLineBackground() {
-        return mWeekLineBackground;
-    }
-
 
     String getMonthViewClass() {
         return mMonthViewClass;
@@ -651,5 +643,15 @@ final class CalendarViewDelegate {
         calendar.setDay(mCurrentDate.getDay());
         LunarCalendar.setupLunarCalendar(calendar);
         return calendar;
+    }
+
+    private int positionInMonth;
+
+    public void setPositionInMonth(int positionInMonth) {
+        this.positionInMonth = positionInMonth;
+    }
+
+    public int getPositionInMonth() {
+        return positionInMonth;
     }
 }

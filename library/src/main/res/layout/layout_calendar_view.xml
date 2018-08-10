@@ -16,23 +16,15 @@
             android:id="@+id/vp_month"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="41dp" />
+            android:layout_marginTop="40dp" />
 
         <com.jm.library.WeekViewPager
             android:id="@+id/vp_week"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginTop="41dp"
-            android:visibility="gone" />
-
-        <View
-            android:id="@+id/line"
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginTop="40dp"
-            android:background="#cfcfcf" />
+            android:visibility="gone"
+            tools:visibility="visible" />
 
     </FrameLayout>
 

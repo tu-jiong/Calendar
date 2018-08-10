@@ -8,7 +8,8 @@
         android:id="@+id/text_view"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="#ff8825"
-        android:gravity="center" />
+        android:background="#f0f0f0"
+        android:gravity="center"
+        android:textColor="#333" />
 
 </RelativeLayout>

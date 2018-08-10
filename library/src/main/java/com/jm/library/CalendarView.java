@@ -17,20 +17,15 @@ package com.jm.library;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.PagerAdapter;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.VelocityTracker;
-import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
@@ -61,19 +56,9 @@ public class CalendarView extends FrameLayout {
     private WeekViewPager mWeekPager;
 
     /**
-     * 星期栏的线
-     */
-    private View mWeekLine;
-
-    /**
      * 星期栏
      */
     private WeekBar mWeekBar;
-
-    /**
-     * 日历外部收缩布局
-     */
-    CalendarLayout mParentLayout;
 
     private boolean isAnimating;
 
@@ -108,7 +93,7 @@ public class CalendarView extends FrameLayout {
      * @param context context
      */
     private void init(Context context) {
-        LayoutInflater.from(context).inflate(R.layout.cv_layout_calendar_view, this, true);
+        LayoutInflater.from(context).inflate(R.layout.layout_calendar_view, this, true);
         FrameLayout frameContent = findViewById(R.id.frameContent);
         this.mWeekPager = findViewById(R.id.vp_week);
         this.mWeekPager.setup(mDelegate);
@@ -128,17 +113,11 @@ public class CalendarView extends FrameLayout {
         mWeekBar.setup(mDelegate);
         mWeekBar.onWeekStartChange(mDelegate.getWeekStart());
 
-        this.mWeekLine = findViewById(R.id.line);
-        this.mWeekLine.setBackgroundColor(mDelegate.getWeekLineBackground());
-        FrameLayout.LayoutParams lineParams = (FrameLayout.LayoutParams) this.mWeekLine.getLayoutParams();
-        lineParams.setMargins(lineParams.leftMargin, mDelegate.getWeekBarHeight(), lineParams.rightMargin, 0);
-        this.mWeekLine.setLayoutParams(lineParams);
-
         this.mMonthPager = findViewById(R.id.vp_month);
         this.mMonthPager.mWeekPager = mWeekPager;
         this.mMonthPager.mWeekBar = mWeekBar;
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) this.mMonthPager.getLayoutParams();
-        params.setMargins(0, mDelegate.getWeekBarHeight() + CalendarUtil.dipToPx(context, 1), 0, 0);
+        params.setMargins(0, mDelegate.getWeekBarHeight(), 0, 0);
         mWeekPager.setLayoutParams(params);
 
         mDelegate.mInnerListener = new OnInnerDateSelectedListener() {
@@ -218,7 +197,6 @@ public class CalendarView extends FrameLayout {
             scrollToCalendar(mDelegate.mSelectedCalendar.getYear(),
                     mDelegate.mSelectedCalendar.getMonth(),
                     mDelegate.mSelectedCalendar.getDay());
-
         } else {
             scrollToCurrent();
         }
@@ -272,17 +250,9 @@ public class CalendarView extends FrameLayout {
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void showSelectLayout(final int year) {
-        if (mParentLayout != null && mParentLayout.mContentView != null) {
-            if (!mParentLayout.isExpand()) {
-                mParentLayout.expand();
-                return;
-            }
-        }
         mWeekPager.setVisibility(GONE);
         mDelegate.isShowYearSelectedLayout = true;
-        if (mParentLayout != null) {
-            mParentLayout.hideContentView();
-        }
+
         mWeekBar.animate()
                 .translationY(-mWeekBar.getHeight())
                 .setInterpolator(new LinearInterpolator())
@@ -292,9 +262,6 @@ public class CalendarView extends FrameLayout {
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
                         mWeekBar.setVisibility(GONE);
-                        if (mParentLayout != null && mParentLayout.mContentView != null) {
-                            mParentLayout.expand();
-                        }
                     }
                 });
 
@@ -357,9 +324,6 @@ public class CalendarView extends FrameLayout {
                         super.onAnimationEnd(animation);
                         mMonthPager.setVisibility(VISIBLE);
                         mMonthPager.clearAnimation();
-                        if (mParentLayout != null) {
-                            mParentLayout.showContentView();
-                        }
                     }
                 });
     }
@@ -622,15 +586,9 @@ public class CalendarView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if (getParent() != null && getParent() instanceof CalendarLayout) {
-            mParentLayout = (CalendarLayout) getParent();
-            mParentLayout.mItemHeight = mDelegate.getCalendarItemHeight();
-            mMonthPager.mParentLayout = mParentLayout;
-            mWeekPager.mParentLayout = mParentLayout;
-            mParentLayout.mWeekBar = mWeekBar;
-            mParentLayout.setup(mDelegate);
-            mParentLayout.initStatus();
-        }
+        int diff = CalendarUtil.getMonthViewStartDiff(mDelegate.mSelectedCalendar, mDelegate.getWeekStart());
+        int size = diff + mDelegate.mSelectedCalendar.getDay() - 1;
+        mDelegate.setPositionInMonth(size);
     }
 
 
@@ -722,7 +680,6 @@ public class CalendarView extends FrameLayout {
      */
     public void setBackground(int yearViewBackground, int weekBackground, int lineBg) {
         mWeekBar.setBackgroundColor(weekBackground);
-        mWeekLine.setBackgroundColor(lineBg);
     }
 
 
@@ -970,13 +927,11 @@ public class CalendarView extends FrameLayout {
             adapter.notifyDataSetChanged();
         }
         mWeekPager.setVisibility(VISIBLE);
-        mMonthPager.setVisibility(INVISIBLE);
     }
 
     public void hideWeek() {
         onShowMonthView();
         mWeekPager.setVisibility(GONE);
-        mMonthPager.setVisibility(VISIBLE);
     }
 
     /**
@@ -1003,239 +958,12 @@ public class CalendarView extends FrameLayout {
         }
     }
 
-    /**
-     * 展开
-     *
-     * @return 展开是否成功
-     */
-    public boolean expand() {
-        if (isAnimating)
-            return false;
-        if (mMonthPager.getVisibility() != VISIBLE) {
-            mWeekPager.setVisibility(GONE);
-            onShowMonthView();
-            mMonthPager.setVisibility(VISIBLE);
-        }
-        ValueAnimator valueAnimator = ValueAnimator.ofInt(getHeight(), getFullHeight() + getWeekBarHeight());
-        valueAnimator.setDuration(240);
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                isAnimating = true;
-                int value = (int) animation.getAnimatedValue();
-                ViewGroup.LayoutParams params = getLayoutParams();
-                if (params != null) {
-                    params.height = value;
-                    setLayoutParams(params);
-                }
-            }
-        });
-        valueAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isAnimating = false;
-                hideWeek();
-            }
-        });
-        valueAnimator.start();
-        return true;
+    public MonthViewPager getMonthPager() {
+        return mMonthPager;
     }
 
-    /**
-     * 收缩
-     *
-     * @return 成功或者失败
-     */
-    public boolean shrink() {
-        if (isAnimating) {
-            return false;
-        }
-        ValueAnimator valueAnimator = ValueAnimator.ofInt(getHeight(), mDelegate.getCalendarItemHeight() + mWeekBar.getHeight());
-        valueAnimator.setDuration(240);
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                isAnimating = true;
-                int value = (int) animation.getAnimatedValue();
-                ViewGroup.LayoutParams params = getLayoutParams();
-                if (params != null) {
-                    params.height = value;
-                    setLayoutParams(params);
-                }
-            }
-        });
-        valueAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isAnimating = false;
-                showWeek();
-            }
-        });
-        valueAnimator.start();
-        return true;
-    }
-
-    public int getFullHeight() {
-        if (mDelegate.getMonthViewShowMode() == CalendarViewDelegate.MODE_ALL_MONTH) {
-            return mDelegate.getCalendarItemHeight() * 6;
-        } else {
-            int year = (mMonthPager.getCurrentItem() + mDelegate.getMinYearMonth() - 1) / 12 + mDelegate.getMinYear();
-            int month = (mMonthPager.getCurrentItem() + mDelegate.getMinYearMonth() - 1) % 12 + 1;
-            return CalendarUtil.getMonthViewHeight(year, month, mDelegate.getCalendarItemHeight(), mDelegate.getWeekStart());
-        }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        int action = ev.getAction();
-        float y = ev.getY();
-        mVelocityTracker.addMovement(ev);
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                int index = MotionEventCompat.getActionIndex(ev);
-                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
-                mLastY = downY = y;
-                return true;
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
-                final int idx = MotionEventCompat.getActionIndex(ev);
-                mActivePointerId = MotionEventCompat.getPointerId(ev, idx);
-                if (mActivePointerId == 0) {
-                    //核心代码：就是让下面的 dy = y- mLastY == 0，避免抖动
-                    mLastY = MotionEventCompat.getY(ev, mActivePointerId);
-                }
-                break;
-            }
-            case MotionEvent.ACTION_MOVE:
-                getPointerIndex(ev, mActivePointerId);
-                if (mActivePointerId == INVALID_POINTER) {
-                    //如果切换了手指，那把mLastY换到最新手指的y坐标即可，核心就是让下面的 dy== 0，避免抖动
-                    mLastY = y;
-                    mActivePointerId = ACTIVE_POINTER;
-                }
-
-                float dy = y - mLastY;
-                //向上滑动，并且contentView平移到最大距离，显示周视图
-                if (dy < 0 && getHeight() == getItemHeight() + getWeekBarHeight()) {
-                    showWeek();
-                    return false;
-                }
-                hideWeek();
-
-                //向下滑动，并且contentView已经完全到底部
-                if (dy > 0) {
-                    translation(dy);
-                    return super.onTouchEvent(ev);
-                }
-
-                //向上滑动，并且contentView已经平移到最大距离，则contentView平移到最大的距离
-                if (dy < 0) {
-                    translation(dy);
-                    return super.onTouchEvent(ev);
-                }
-                //否则按比例平移
-//                translationViewPager();
-                mLastY = y;
-                break;
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_POINTER_UP:
-                int pointerIndex = getPointerIndex(ev, mActivePointerId);
-                if (mActivePointerId == INVALID_POINTER)
-                    break;
-                mLastY = MotionEventCompat.getY(ev, pointerIndex);
-                break;
-            case MotionEvent.ACTION_UP:
-                final VelocityTracker velocityTracker = mVelocityTracker;
-                velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                float mYVelocity = velocityTracker.getYVelocity();
-                if (getHeight() == getItemHeight()
-                        || getHeight() == getItemHeight() * 6) {
-                    break;
-                }
-                if (Math.abs(mYVelocity) >= 800) {
-                    if (mYVelocity < 0) {
-                        shrink();
-                    } else {
-                        expand();
-                    }
-                    return super.onTouchEvent(ev);
-                }
-                if (ev.getY() - downY > 0) {
-                    expand();
-                } else {
-                    shrink();
-                }
-                break;
-        }
-        return super.onTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        final int action = ev.getAction();
-        float y = ev.getY();
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                int index = MotionEventCompat.getActionIndex(ev);
-                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
-                mLastY = downY = y;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                float dy = y - mLastY;
-                int height = getHeight();
-                int max = getFullHeight();
-                int min = getItemHeight() + getWeekBarHeight();
-                if ((dy < 0 && height <= min) || (dy > 0 && height >= max)) {
-                    return false;
-                }
-                 /*
-                   如果向上滚动，且ViewPager已经收缩，不拦截事件
-                 */
-                if (dy < 0 && getHeight() == getItemHeight() + getWeekBarHeight()) {
-                    return false;
-                }
-                /*
-                 * 如果向下滚动，有 2 种情况处理 且y在ViewPager下方
-                 * 1、RecyclerView 或者其它滚动的View，当mContentView滚动到顶部时，拦截事件
-                 * 2、非滚动控件，直接拦截事件
-                 */
-                if (dy > 0 && getHeight() == getFullHeight()) {
-                    return false;
-                }
-                if (Math.abs(dy) > mTouchSlop) {//大于mTouchSlop开始拦截事件，ContentView和ViewPager得到CANCEL事件
-                    if ((dy > 0 && getHeight() < getFullHeight())
-                            || (dy < 0 && getHeight() > getItemHeight() + getWeekBarHeight())) {
-                        mLastY = y;
-                        return true;
-                    }
-                }
-                break;
-        }
-        return super.onInterceptTouchEvent(ev);
-    }
-
-    private void translation(float dy) {
-        ViewGroup.LayoutParams params = getLayoutParams();
-        if (params != null) {
-            int height = (int) (getHeight() + dy);
-            int minHeight = getItemHeight() + getWeekBarHeight();
-            if (height < minHeight) {
-                height = minHeight;
-            }
-            int fullHeight = getFullHeight();
-            if (height > fullHeight) {
-                height = fullHeight;
-            }
-            params.height = height;
-            setLayoutParams(params);
-        }
-    }
-
-    private int getPointerIndex(MotionEvent ev, int id) {
-        int activePointerIndex = MotionEventCompat.findPointerIndex(ev, id);
-        if (activePointerIndex == -1) {
-            mActivePointerId = INVALID_POINTER;
-        }
-        return activePointerIndex;
+    public int getPositionInMonth() {
+        return mDelegate.getPositionInMonth();
     }
 
     /**
@@ -1254,7 +982,7 @@ public class CalendarView extends FrameLayout {
 
     /**
      * 内部日期选择，不暴露外部使用
-     * 主要是用于更新日历CalendarLayout位置
+     * 主要是用于更新日历位置
      */
     interface OnInnerDateSelectedListener {
         /**

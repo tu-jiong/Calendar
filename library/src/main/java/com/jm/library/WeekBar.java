@@ -60,7 +60,7 @@ public class WeekBar extends View {
         this.mDelegate = delegate;
         setTextSize(delegate.getWeekTextSize());
         setTextColor(delegate.getWeekTextColor());
-        setBackgroundColor(delegate.getWeekBackground());
+        setBackgroundColor(delegate.getWeekBarBackground());
         setHeight();
         initPaint(getContext());
     }

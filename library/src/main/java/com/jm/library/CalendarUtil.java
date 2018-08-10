@@ -125,6 +125,14 @@ final class CalendarUtil {
         return (calendar.getDay() + diff - 1) / 7 + 1;
     }
 
+    static int getDayInMonth(Calendar calendar, int weekStart) {
+        java.util.Calendar date = java.util.Calendar.getInstance();
+        date.set(calendar.getYear(), calendar.getMonth() - 1, 1);
+        //该月第一天为星期几,星期天 == 0
+        int diff = getMonthViewStartDiff(calendar, weekStart);
+        return (calendar.getDay() + diff - 1);
+    }
+
 
     /**
      * DAY_OF_WEEK return  1  2  3 	4  5  6	 7，偏移了一位
@@ -608,7 +616,7 @@ final class CalendarUtil {
      * 从月视图切换获得第一天的日期
      *
      * @param position position
-     * @param delegate position
+     * @param delegate delegate
      * @return 从月视图切换获得第一天的日期
      */
     static Calendar getCalendarFromMonthViewPager(int position, CalendarViewDelegate delegate) {

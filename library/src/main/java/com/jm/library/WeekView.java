@@ -81,10 +81,9 @@ public abstract class WeekView extends BaseView {
                 if (mDelegate.mInnerListener != null) {
                     mDelegate.mInnerListener.onWeekDateSelected(calendar, true);
                 }
-                if (mParentLayout != null) {
-                    int i = CalendarUtil.getWeekFromDayInMonth(calendar, mDelegate.getWeekStart());
-                    mParentLayout.updateSelectWeek(i);
-                }
+
+                int i = CalendarUtil.getDayInMonth(calendar, mDelegate.getWeekStart());
+                mDelegate.setPositionInMonth(i);
 
                 if (mDelegate.mDateSelectedListener != null) {
                     mDelegate.mDateSelectedListener.onDateSelected(calendar, true);
@@ -122,10 +121,9 @@ public abstract class WeekView extends BaseView {
                 if (mDelegate.mInnerListener != null) {
                     mDelegate.mInnerListener.onWeekDateSelected(calendar, true);
                 }
-                if (mParentLayout != null) {
-                    int i = CalendarUtil.getWeekFromDayInMonth(calendar, mDelegate.getWeekStart());
-                    mParentLayout.updateSelectWeek(i);
-                }
+
+                int i = CalendarUtil.getDayInMonth(calendar, mDelegate.getWeekStart());
+                mDelegate.setPositionInMonth(i);
 
                 if (mDelegate.mDateSelectedListener != null) {
                     mDelegate.mDateSelectedListener.onDateSelected(calendar, true);
@@ -146,7 +144,7 @@ public abstract class WeekView extends BaseView {
      * @param isNotice isNotice
      */
     void performClickCalendar(Calendar calendar, boolean isNotice) {
-        if (mParentLayout == null || mDelegate.mInnerListener == null || mItems == null || mItems.size() == 0) {
+        if (mDelegate.mInnerListener == null || mItems == null || mItems.size() == 0) {
             return;
         }
 
@@ -174,8 +172,8 @@ public abstract class WeekView extends BaseView {
 
         currentCalendar.setCurrentDay(currentCalendar.equals(mDelegate.getCurrentDay()));
         mDelegate.mInnerListener.onWeekDateSelected(currentCalendar, false);
-        int i = CalendarUtil.getWeekFromDayInMonth(currentCalendar, mDelegate.getWeekStart());
-        mParentLayout.updateSelectWeek(i);
+        int i = CalendarUtil.getDayInMonth(currentCalendar, mDelegate.getWeekStart());
+        mDelegate.setPositionInMonth(i);
 
         if (mDelegate.mDateSelectedListener != null
                 && isNotice
@@ -183,7 +181,6 @@ public abstract class WeekView extends BaseView {
             mDelegate.mDateSelectedListener.onDateSelected(currentCalendar, false);
         }
 
-        mParentLayout.updateContentViewTranslateY();
         if (mDelegate.getSelectMode() == CalendarViewDelegate.SELECT_MODE_DEFAULT) {
             mCurrentItem = curIndex;
         }

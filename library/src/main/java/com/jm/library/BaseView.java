@@ -98,11 +98,6 @@ public abstract class BaseView extends View implements View.OnClickListener, Vie
     protected Paint mCurDayLunarTextPaint = new Paint();
 
     /**
-     * 日历布局，需要在日历下方放自己的布局
-     */
-    CalendarLayout mParentLayout;
-
-    /**
      * 日历项
      */
     List<Calendar> mItems;

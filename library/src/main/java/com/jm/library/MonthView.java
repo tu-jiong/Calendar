@@ -42,7 +42,6 @@ public abstract class MonthView extends BaseView {
      */
     private int mMonth;
 
-
     /**
      * 日历的行数
      */
@@ -159,13 +158,10 @@ public abstract class MonthView extends BaseView {
                     mDelegate.mInnerListener.onMonthDateSelected(calendar, true);
                 }
 
-                if (mParentLayout != null) {
-                    if (calendar.isCurrentMonth()) {
-                        mParentLayout.updateSelectPosition(mItems.indexOf(calendar));
-                    } else {
-                        mParentLayout.updateSelectWeek(CalendarUtil.getWeekFromDayInMonth(calendar, mDelegate.getWeekStart()));
-                    }
-
+                if (calendar.isCurrentMonth()) {
+                    mDelegate.setPositionInMonth(mItems.indexOf(calendar));
+                } else {
+                    mDelegate.setPositionInMonth(CalendarUtil.getDayInMonth(calendar, mDelegate.getWeekStart()));
                 }
 
                 if (mDelegate.mDateSelectedListener != null) {
@@ -214,13 +210,10 @@ public abstract class MonthView extends BaseView {
                     mDelegate.mInnerListener.onMonthDateSelected(calendar, true);
                 }
 
-                if (mParentLayout != null) {
-                    if (calendar.isCurrentMonth()) {
-                        mParentLayout.updateSelectPosition(mItems.indexOf(calendar));
-                    } else {
-                        mParentLayout.updateSelectWeek(CalendarUtil.getWeekFromDayInMonth(calendar, mDelegate.getWeekStart()));
-                    }
-
+                if (calendar.isCurrentMonth()) {
+                    mDelegate.setPositionInMonth(mItems.indexOf(calendar));
+                } else {
+                    mDelegate.setPositionInMonth(CalendarUtil.getDayInMonth(calendar, mDelegate.getWeekStart()));
                 }
 
                 if (mDelegate.mDateSelectedListener != null) {
@@ -297,7 +290,6 @@ public abstract class MonthView extends BaseView {
         } else {
             mHeight = CalendarUtil.getMonthViewHeight(year, month, mItemHeight, mDelegate.getWeekStart());
         }
-
     }
 
     /**
@@ -406,7 +398,6 @@ public abstract class MonthView extends BaseView {
      * @param y        日历Card y起点坐标
      */
     protected abstract void onDrawScheme(Canvas canvas, Calendar calendar, int x, int y);
-
 
     /**
      * 绘制日历文本
