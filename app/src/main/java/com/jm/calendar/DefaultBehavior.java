@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import com.jm.library.CalendarView;
 import com.jm.library.MonthViewPager;
@@ -20,9 +21,12 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
 
     public int mOffset;
     private int mTempTopBottomOffset = Integer.MIN_VALUE;
+    private int mDownX;
     private int mDownY;
+    private int mLastX;
     private int mLastY;
-    private boolean isAniming;
+    private int mTouchSlop;
+    private boolean isAnim;
 
     public DefaultBehavior() {
         super();
@@ -30,6 +34,8 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
 
     public DefaultBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
+        ViewConfiguration configuration = ViewConfiguration.get(context);
+        mTouchSlop = configuration.getScaledTouchSlop();
     }
 
     @Override
@@ -47,12 +53,15 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
     @Override
     public boolean onInterceptTouchEvent(CoordinatorLayout parent, CalendarView child, MotionEvent ev) {
         final int action = ev.getAction();
+        int x = (int) ev.getX();
         int y = (int) ev.getY();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                mLastX = mDownX = x;
                 mLastY = mDownY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
+                int dx = x - mLastX;
                 int dy = y - mLastY;
                 int range = child.getHeight() - child.getWeekBarHeight() - child.getItemHeight();
                 int top = child.getMonthPager().getTop();
@@ -67,7 +76,8 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
 //                    return false;
 //                }
 
-                if (Math.abs(dy) > 25) {
+                if (Math.abs(dx) < Math.abs(dy) && Math.abs(dy) > mTouchSlop) {
+                    mLastX = x;
                     mLastY = y;
                     return true;
                 }
@@ -91,14 +101,17 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
     @Override
     public boolean onTouchEvent(CoordinatorLayout parent, CalendarView child, MotionEvent ev) {
         int action = ev.getAction();
+        int x = (int) ev.getRawX();
         int y = (int) ev.getRawY();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                mLastX = mDownX = x;
                 mLastY = mDownY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
                 mOffset = y - mLastY;
                 scroll(child, mOffset);
+                mLastX = x;
                 mLastY = y;
                 parent.dispatchDependentViewsChanged(child);
                 break;
@@ -121,10 +134,10 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
     }
 
     private void fling(final CoordinatorLayout parent, final CalendarView child, int start, int end) {
-        if (isAniming) {
+        if (isAnim) {
             return;
         }
-        isAniming = true;
+        isAnim = true;
         ValueAnimator valueAnimator = ValueAnimator.ofInt(start, end);
         valueAnimator.setDuration(300);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -144,7 +157,7 @@ public class DefaultBehavior extends CoordinatorLayout.Behavior<CalendarView> {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                isAniming = false;
+                isAnim = false;
             }
 
             @Override
