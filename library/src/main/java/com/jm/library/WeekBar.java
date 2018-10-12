@@ -61,8 +61,8 @@ public class WeekBar extends View {
         setTextSize(delegate.getWeekTextSize());
         setTextColor(delegate.getWeekTextColor());
         setBackgroundColor(delegate.getWeekBarBackground());
-        setHeight();
         initPaint(getContext());
+        setHeight();
     }
 
     private void setHeight() {
